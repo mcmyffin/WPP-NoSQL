@@ -18,11 +18,11 @@ public class redis {
 
     public static void main(String[] args) {
 
-
+        String adress = args[0];
 //        if(args.length != 2) System.exit(1);
 
 
-        Jedis client = new Jedis("141.22.64.0");
+        Jedis client = new Jedis(adress);
 
 
 
