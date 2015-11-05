@@ -1,14 +1,28 @@
 package redis;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import redis.clients.jedis.Jedis;
 
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+import redis.data_manager.DataManager;
+import redis.data_manager.IDataManager;
+import redis.parser.JSonParser;
 
 /**
  * Created by dima on 02.11.15.
  */
 public class redis {
 
+    private static String arg_i    = "-i";
+    private static String arg_imp  = "--import";
     private static String arg_help = "--help";
     private static String arg_h    = "-h";
     private static String arg_plz  = "--plz";
@@ -16,7 +30,8 @@ public class redis {
     private static String arg_city = "--city";
     private static String arg_c    = "-c";
     private static String exit     = "exit";
-    private static String usage = "redis [ARGUMENT] <adress/hostname>\n"
+    private static String usage = "redis [ARGUMENT] <IP-Adress/Hostname>\n\n"
+                                +"   ------------------ [ARGUMENT] ------------------\n"                    
                                 +"   <adress/hostname>  : IP-Adress/Hostname from Redis-Server\n\n"
                                 +"   "+arg_h+" | "+arg_help+" : show Help usage\n"
                                 +"   "+arg_p+" | "+arg_plz+"  : start interactive search for plz number\n"
@@ -33,13 +48,13 @@ public class redis {
     public static void main(String[] args) {
 
         /* wrong arguments count */
-        if(args.length != 2) {
+        if(args.length < 2 || args.length > 3) {
             showUsage(true);
         }
         
         String argument = args[0];
         String adress   = args[1];
-        
+
         /* Create Redis-Client */
         Jedis client = new Jedis(adress);
 
@@ -56,6 +71,47 @@ public class redis {
             print("interactive City search activated");
             searchForCity(client, scanner);
             print("interactive City search deactivated");
+        }
+        
+        /* import file */
+        else if(argument.equals(arg_i) || argument.equals(arg_imp)){
+            print("import file, please type in correctly file-path");
+            String filepath = read();
+            print("wait a second ...");
+            
+            IDataManager dataManager = new DataManager();
+            
+            try {
+                List<String> dataContent  = dataManager.readFile(new File(filepath));
+                List<JSONObject> jsonList = JSonParser.parseToJSON(dataContent);
+                
+                print(jsonList.size()+" obj. found");
+                print("try to import ...");
+                
+                String id   = "_id";
+                String city = "city";
+                String loc  = "loc";
+                String pop  = "pop";
+                String state= "state";
+                
+                Map<String,String> map = new HashMap();
+                for(JSONObject o : jsonList){
+                    
+                    map.clear();
+                    print("add id: "+o.get(id));
+                    
+                    map.put(city, (String) o.get(city));
+                    map.put(loc, (String) o.get(loc));
+                    map.put(pop, (String) o.get(pop));
+                    map.put(state, (String) o.get(state));
+                    
+                    client.hmset(client.get(id), map);
+                }
+                
+            } catch (JSONException | IOException ex) {
+                print(ex.getMessage());
+                System.exit(2);
+            }
         }
         
         else{
