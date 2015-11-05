@@ -9,15 +9,18 @@ import java.util.Scanner;
  */
 public class redis {
 
-    private static String arg_help = "-help";
-    private static String arg_plz  = "-plz";
-    private static String arg_city = "-city";
+    private static String arg_help = "--help";
+    private static String arg_h    = "-h";
+    private static String arg_plz  = "--plz";
+    private static String arg_p    = "-p";
+    private static String arg_city = "--city";
+    private static String arg_c    = "-c";
     private static String exit     = "exit";
     private static String usage = "redis [ARGUMENT] <adress/hostname>\n"
                                 +"   <adress/hostname>  : IP-Adress/Hostname from Redis-Server\n\n"
-                                +"   "+arg_help+" : show Help usage\n"
-                                +"   "+arg_plz+"  : start interactive search for plz number\n"
-                                +"   "+arg_city+" : start interactive search for City value\n"
+                                +"   "+arg_h+" | "+arg_help+" : show Help usage\n"
+                                +"   "+arg_p+" | "+arg_plz+"  : start interactive search for plz number\n"
+                                +"   "+arg_c+" | "+arg_city+" : start interactive search for City value\n"
                                 +"   ------------------------------------------------\n"
                                 +"   "+exit+"  : close interactive search\n";
                                 
@@ -42,20 +45,22 @@ public class redis {
 
         
         /* interactive search with PLZ */
-        if(argument.equals(arg_plz)){
+        if(argument.equals(arg_plz) || argument.equals(arg_p)){
             print("interactive PLZ search activated");
             searchForPLZ(client,scanner);
             print("interactive PLZ search deactivated");
         }
         
         /* interactive search with City */
-        if(argument.equals(arg_city)){
+        else if(argument.equals(arg_city) || argument.equals(arg_c)){
             print("interactive City search activated");
             searchForCity(client, scanner);
             print("interactive City search deactivated");
         }
         
-        showUsage(true);
+        else{
+            showUsage(true);
+        }
     }
     
     private static void showUsage(boolean withExit){
@@ -70,17 +75,20 @@ public class redis {
     
     private static void searchForPLZ(Jedis client, Scanner scanner){
         
+        print("NOT IMPLEMENTED !!!");
+        System.exit(2);
+        
         for(String line = read(); !line.equals(exit); line = read()){
-            print("NOT IMPLEMENTED !!!");
-            System.exit(2);
+            
         }
     }
     
     private static void searchForCity(Jedis client, Scanner scanner){
         
+        print("NOT IMPLEMENTED !!!");
+        System.exit(2);
         for(String line = read(); !line.equals(exit); line = read()){
-            print("NOT IMPLEMENTED !!!");
-            System.exit(2);
+            
         }
     }
 }
