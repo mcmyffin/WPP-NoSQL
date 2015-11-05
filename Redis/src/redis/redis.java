@@ -36,6 +36,7 @@ public class redis {
                                 +"   "+arg_h+" | "+arg_help+" : show Help usage\n"
                                 +"   "+arg_p+" | "+arg_plz+"  : start interactive search for plz number\n"
                                 +"   "+arg_c+" | "+arg_city+" : start interactive search for City value\n"
+                                +"   "+arg_i+" | "+arg_imp+"  : import from file\n"
                                 +"   ------------------------------------------------\n"
                                 +"   "+exit+"  : close interactive search\n";
                                 
