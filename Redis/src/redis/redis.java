@@ -101,12 +101,13 @@ public class redis {
                     map.clear();
                     print("add id: "+o.get(id));
                     
-                    map.put(city, (String) o.get(city));
-                    map.put(loc, (String) o.get(loc));
-                    map.put(pop, (String) o.get(pop));
-                    map.put(state, (String) o.get(state));
+                    map.put(city, o.get(city).toString());
+                    map.put(loc, o.get(loc).toString());
+                    map.put(pop, o.get(pop).toString());
+                    map.put(state, o.get(state).toString());
                     
-                    client.hmset(client.get(id), map);
+                    String returncode = client.hmset(o.get(id).toString(), map);
+                    print("[SERVER] : "+returncode);
                 }
                 
             } catch (JSONException | IOException ex) {
