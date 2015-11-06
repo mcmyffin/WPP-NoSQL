@@ -2,6 +2,7 @@ package redis;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ public class redis {
         else if(argument.equals(arg_i) || argument.equals(arg_imp)){
             print("import file, please type in correctly file-path");
             String filepath = read();
+            if(filepath.equals(exit)) System.exit(0);
             print("wait a second ...");
             
             IDataManager dataManager = new DataManager();
@@ -96,26 +98,26 @@ public class redis {
                 String state= "state";
                 
                 Map<String,String> map = new HashMap();
+                int numberOfSuccess = 0;
                 for(JSONObject o : jsonList){
                     
                     map.clear();
-                    print("add id: "+o.get(id));
-                    
                     map.put(city, o.get(city).toString());
                     map.put(loc, o.get(loc).toString());
                     map.put(pop, o.get(pop).toString());
                     map.put(state, o.get(state).toString());
                     
-                    String returncode = client.hmset(o.get(id).toString(), map);
-                    print("[SERVER] : "+returncode);
+                    String returnCode = client.hmset("id:"+o.get(id).toString(), map);
+                    client.rpush(o.get(city).toString(), o.get(id).toString());
+                    if(returnCode.equals("OK")) numberOfSuccess++;
                 }
+                print("IMPORT FINISHED: ("+numberOfSuccess+"/"+jsonList.size()+")");
                 
             } catch (JSONException | IOException ex) {
                 print(ex.getMessage());
                 System.exit(2);
             }
         }
-        
         else{
             showUsage(true);
         }
@@ -133,20 +135,26 @@ public class redis {
     
     private static void searchForPLZ(Jedis client, Scanner scanner){
         
-        print("NOT IMPLEMENTED !!!");
-        System.exit(2);
-        
         for(String line = read(); !line.equals(exit); line = read()){
-            
+            Map<String,String> result = client.hgetAll("id:"+line);
+            if(result.size() <= 0) print("PLZ \""+line+"\" does not exist");
+            else print(result.get("city"));
         }
     }
     
     private static void searchForCity(Jedis client, Scanner scanner){
         
-        print("NOT IMPLEMENTED !!!");
-        System.exit(2);
         for(String line = read(); !line.equals(exit); line = read()){
-            
+        
+            long listSize = client.llen(line);
+            if(listSize <=  0) print("City \""+line+"\" does not exist");
+            else {
+                for(int i = 0; i < listSize; i++){
+
+                    String plz = client.lindex(line, i);
+                    print("plz: "+plz);
+                }
+            }
         }
     }
 }
