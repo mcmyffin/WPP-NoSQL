@@ -1,5 +1,5 @@
 Datenbank Struktur
-*id ist immer eindeutig*
+*id/PLZ ist immer eindeutig*
 *stadt ist nicht eindeutig*
 
 Für die interaktive Suche nach id/PLZ benötigen wir eine einfache Map
@@ -10,7 +10,7 @@ Für die interaktive Suche nach der Stadt benötigen wird eine eindeutige Abbild
 Da der Stadt-Name nicht eindeutig ist können wir keine HashMap benutzen
 >> (city -> [id,...])
 >> Liste, wobei der Name der Liste gleichzeitig der Śtadt-Name ist
->> Der Inhalt der Liste beinhaltet dann die ids/PLZs
+>> Der Inhalt der Liste beinhaltet dann die ids/PLZ
 
 Somit führen wird zwar redundante Daten in der Datenbank, aber die Zugriffsgeschwindigkeit steht im vordergrund.
 

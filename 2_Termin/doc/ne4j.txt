@@ -1,0 +1,6 @@
+*AUFGABE 5*
+a)
+b)
+
+*AUFGABE 6*
+match(n),(m) where n.id="/c/en/baseball" and (m)-[:IsA]-(n) return m
