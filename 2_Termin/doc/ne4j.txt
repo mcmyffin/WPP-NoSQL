@@ -1,6 +1,28 @@
 *AUFGABE 5*
 a)
+
+CREATE (MG:Module {name: "MG"}) -[r:FOR]->(AF:Module {name : "AF"}),
+(AF) -[:FOR]->(LB:Module {name : "LB"}),
+(GI:Module {name: "GI"}) -[:FOR]->(RMP:Module {name : "RMP"}),
+(PR1:Module {name: "PR1"}) -[:FOR]->(DB:Module {name : "DB"}),
+(DB) -[:FOR]->(BW2:Module {name : "BW2"}),
+(BW1:Module {name: "BW1"}) -[:FOR]->(BW2),
+(PR1) -[:FOR]->(PR2:Module {name : "PR2"}),
+(PR2) -[:FOR]->(AD:Module {name : "AD"}),
+(PR2) -[:FOR]->(SE1:Module {name : "SE1"}),
+(PR2) -[:FOR]->(GKA:Module {name : "GKA"}),
+(PR2) -[:FOR]->(BS:Module {name : "BS"}),
+(SE1) -[:FOR]->(SE2:Module {name : "SE2"}),
+(SE2) -[:FOR]->(AI:Module {name : "AI"}),
+(BS) -[:FOR]->(IS:Module {name : "IS"}),
+(BS) -[:FOR]->(RN:Module {name : "RN"}),
+(PR2) -[:FOR]->(WP_NoSQL:Module {name : "WP_NoSQL"});
+
+
 b)
+MATCH(a)-[FOR]->(b{name:"WP_NoSQL"}) RETURN a.name
+
+MATCH(s) WHERE NOT (s)-[:FOR]->() RETURN s
 
 *AUFGABE 6*
 match(n),(m) where n.id="/c/en/baseball" and (m)-[:IsA]-(n) return m

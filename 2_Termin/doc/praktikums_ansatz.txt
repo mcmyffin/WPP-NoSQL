@@ -1,0 +1,63 @@
+*********************************************
+*	WPP-NoSQL Termin 2						*
+*											*
+*	Team: Dimitri Meier, Saeed Shanidar		*
+*											*
+*********************************************
+
+/*** Aufgabe 4 ***/
+
+	Lösungsansatz IMPORT:
+		>>Überlegung<<
+		Die zu importierende Datei "plz.data" beinhaltet
+		Datensätze in From von JSON. Diese Erkenntnis 
+		würde den Import deutlich erleichtern, da das Text
+		Parsen quasi entfällt.
+
+		>> Daten-Struktur <<
+		*id/PLZ ist immer eindeutig*
+		*stadt ist nicht eindeutig*
+
+		Für die interaktive Suche nach id/PLZ benötigen wir eine einfache Map
+		>>(plz -> city)
+		>> HashMap, wobei die id/PLZ als key und city als value gespeichert wird
+		______________________________________________________________________
+
+		Für die interaktive Suche nach der Stadt benötigen wird eine eindeutige Abbildung.
+		Da der Stadt-Name nicht eindeutig ist können wir keine HashMap benutzen.
+		>> (city -> [id,...])
+		>> Liste, wobei der Name der Liste gleichzeitig der Śtadt-Name ist
+		>> Der Inhalt der Liste beinhaltet dann die ids/PLZ
+
+		Somit ergibt sich im Import-Vorgang folgende Kombination:
+		1) HMSET(int:plz, String:city)
+		2) RPUSH(String:city, int:id)
+
+	Lösungsansatz SUCHE NACH PLZ:
+		Die Anwendung muss in Redis in der HashMap nach der eindeutigen PLZ/id suchen
+		und liefert den Stadtnamen.
+		
+	Lösungsansatz SUCHE NACH STADTNAMEN:
+		Die Anwendung muss in Redis nach einer Liste suchen. Wobei der Name der Liste
+		gleichzeitig der Name der Stadt ist. Der Inhalt der Liste beinhaltet dann 
+		die PLZ die dieser Stadt zugeordnet wurden.
+
+/*** Aufgabe 5 ***/
+
+	>> Knoten werden als Module dargestellt
+	>> Kanten werden als "ist erforderlich für" dargestellt
+
+	1) Suche nach Knoten, die mit den Knoten(NoSQL) eine gerichtete Kante haben und gebe diese aus.
+	2) Module die bisher im Studium nicht weiter genutzt wurden, können relativ einfach
+		im Bezug vom momentanen Stand herausfinden. Es sollten die Knoten sein, die keine ausgehenden
+		Kanten besitzen.
+
+/*** Aufgabe 6 ***/
+
+	>> importieren der Datenbank in neo4j, indem man den Pfad der Datenbank in der config anpasst.
+	>> Suchanfrage: Suche nach Knoten m , die eine Verbindung "IsA" zu dem Knoten n mit der 
+		id="/c/en/baseball" haben und gebe diese aus
+	
+
+
+
