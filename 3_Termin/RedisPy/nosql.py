@@ -24,7 +24,7 @@ class nosql:
     usage = "nosql [OPTION] [DB]\n"\
             "   "+help+"  : show usage\n"\
             "   "+imp+"   : import from File\n" \
-            "           [DB] = ["+redis+","+mongo+"]\n"\
+            "    [DB]     : "+redis+","+mongo+"\n"\
             "   " + s_city + "   : search interactive for city\n"\
             "   " + s_plz + "   : search interactive for plz\n"\
             "   " + exit +"   : escape interactive search\n"
@@ -48,10 +48,10 @@ class nosql:
         importTime = time.time() - startTime
         print("import finished in %5.2f seconds" %(importTime))
 
-    def importMongo(self, filePath):
+    def importMongo(self, filePath,dbName):
         startTime = time.time()
         file = open(filePath)
-        db = self.m_client.get_database(self.m_db)
+        db = self.m_client.get_database(self.dbName)
         db.drop_collection(self.m_collection)
         db.create_collection(self.m_collection)
         col = db.get_collection(self.m_collection)
@@ -77,20 +77,20 @@ class nosql:
         return plzList
 
     ### mongo-db search methods
-    def searchMongoPLZ(self, plz):
+    def searchMongoPLZ(self, plz, dbName):
         search_argument     = json.loads("{\"_id\" : \""+plz+"\"}")
         search_presentation = json.loads("{\"city\" : 1}")
-        db = self.m_client.get_database(self.m_db)
+        db = self.m_client.get_database(self.dbName)
         lists = db.get_collection(self.m_collection).find_one(search_argument,search_presentation)
         try:
             return lists['city']
         except TypeError:
             return
 
-    def searchMongoCity(self, city):
+    def searchMongoCity(self, city, dbName):
         search_argument     = json.loads("{\"city\" : \""+city+"\"}")
         search_presentation = json.loads("{\"_id\" : 1}")
-        db = self.m_client.get_database(self.m_db)
+        db = self.m_client.get_database(self.dbName)
         lists =  db.get_collection(self.m_collection).find(search_argument,search_presentation)
 
         for x in lists: print(">> "+str(x['_id']))
@@ -117,8 +117,9 @@ elif a1 == nosql.imp:
         nosql.importRedis(path)
         sys.exit(0)
     elif a2 == nosql.mongo:
+        dbName = _raw_input(">> DB?: ")
         path = _raw_input(">> Filepath?: ")
-        nosql.importMongo(path)
+        nosql.importMongo(path,dbName)
         sys.exit(0)
 
 elif a1 == nosql.s_plz:
@@ -131,9 +132,10 @@ elif a1 == nosql.s_plz:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
+        dbName = _raw_input(">> DB?: ")
         plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         while plz != nosql.exit:
-            city = nosql.searchMongoPLZ(plz)
+            city = nosql.searchMongoPLZ(plz,dbName)
             print(">> "+str(city))
             plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
@@ -149,9 +151,10 @@ elif a1 == nosql.s_city:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
+        dbName = _raw_input(">> DB ?: ")
         city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         while city != nosql.exit:
-            plzList = nosql.searchMongoCity(city)
+            plzList = nosql.searchMongoCity(city,dbName)
             # print(">> "+str(plzList))
             city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
