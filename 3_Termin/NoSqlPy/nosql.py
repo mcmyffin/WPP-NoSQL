@@ -95,6 +95,13 @@ class nosql:
 
         for x in lists: print(">> "+str(x['_id']))
 
+    def showMongoDB(self):
+        for x  in self.m_client.database_names(): print("DB: "+str(x))
+
+    def showMongoCollection(self, db):
+        db = self.m_client.get_database(db)
+        for x in db.collection_names(): print("Collection: "+str(x))
+
     def showUsage(self):
         print(self.usage)
         sys.exit(1)
@@ -117,7 +124,9 @@ elif a1 == nosql.imp:
         nosql.importRedis(path)
         sys.exit(0)
     elif a2 == nosql.mongo:
+        nosql.showMongoDB()
         dbName = _raw_input(">> Database?: ")
+        nosql.showMongoCollection(dbName)
         coll   = _raw_input(">> Collection?: ")
         path = _raw_input(">> Filepath?: ")
         nosql.importMongo(path,dbName, coll)
@@ -133,7 +142,9 @@ elif a1 == nosql.s_plz:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
+        nosql.showMongoDB()
         dbName = _raw_input(">> Database?: ")
+        nosql.showMongoCollection(dbName)
         coll   = _raw_input(">> Collection?: ")
         plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         while plz != nosql.exit:
@@ -153,7 +164,9 @@ elif a1 == nosql.s_city:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
+        nosql.showMongoDB()
         dbName = _raw_input(">> Database?: ")
+        nosql.showMongoCollection(dbName)
         coll   = _raw_input(">> Collection?: ")
         city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         while city != nosql.exit:
