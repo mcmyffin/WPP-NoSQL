@@ -48,13 +48,13 @@ class nosql:
         importTime = time.time() - startTime
         print("import finished in %5.2f seconds" %(importTime))
 
-    def importMongo(self, filePath,dbName):
+    def importMongo(self, filePath,dbName,coll):
         startTime = time.time()
         file = open(filePath)
         db = self.m_client.get_database(dbName)
-        db.drop_collection(self.m_collection)
-        db.create_collection(self.m_collection)
-        col = db.get_collection(self.m_collection)
+        db.drop_collection(coll)
+        db.create_collection(coll)
+        col = db.get_collection(coll)
 
         ### read file and import ###
         for line in file.readlines():
@@ -77,21 +77,21 @@ class nosql:
         return plzList
 
     ### mongo-db search methods
-    def searchMongoPLZ(self, plz, dbName):
+    def searchMongoPLZ(self, plz, dbName, coll):
         search_argument     = json.loads("{\"_id\" : \""+plz+"\"}")
         search_presentation = json.loads("{\"city\" : 1}")
         db = self.m_client.get_database(dbName)
-        lists = db.get_collection(self.m_collection).find_one(search_argument,search_presentation)
+        lists = db.get_collection(coll).find_one(search_argument,search_presentation)
         try:
             return lists['city']
         except TypeError:
             return
 
-    def searchMongoCity(self, city, dbName):
+    def searchMongoCity(self, city, dbName, coll):
         search_argument     = json.loads("{\"city\" : \""+city+"\"}")
         search_presentation = json.loads("{\"_id\" : 1}")
         db = self.m_client.get_database(dbName)
-        lists =  db.get_collection(self.m_collection).find(search_argument,search_presentation)
+        lists =  db.get_collection(coll).find(search_argument,search_presentation)
 
         for x in lists: print(">> "+str(x['_id']))
 
@@ -117,9 +117,10 @@ elif a1 == nosql.imp:
         nosql.importRedis(path)
         sys.exit(0)
     elif a2 == nosql.mongo:
-        dbName = _raw_input(">> DB?: ")
+        dbName = _raw_input(">> Database?: ")
+        coll   = _raw_input(">> Collection?: ")
         path = _raw_input(">> Filepath?: ")
-        nosql.importMongo(path,dbName)
+        nosql.importMongo(path,dbName, coll)
         sys.exit(0)
 
 elif a1 == nosql.s_plz:
@@ -132,10 +133,11 @@ elif a1 == nosql.s_plz:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
-        dbName = _raw_input(">> DB?: ")
+        dbName = _raw_input(">> Database?: ")
+        coll   = _raw_input(">> Collection?: ")
         plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         while plz != nosql.exit:
-            city = nosql.searchMongoPLZ(plz,dbName)
+            city = nosql.searchMongoPLZ(plz,dbName, coll)
             print(">> "+str(city))
             plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
@@ -151,10 +153,11 @@ elif a1 == nosql.s_city:
         sys.exit(0)
 
     elif a2 == nosql.mongo:
-        dbName = _raw_input(">> DB ?: ")
+        dbName = _raw_input(">> Database?: ")
+        coll   = _raw_input(">> Collection?: ")
         city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         while city != nosql.exit:
-            plzList = nosql.searchMongoCity(city,dbName)
+            plzList = nosql.searchMongoCity(city,dbName,coll)
             # print(">> "+str(plzList))
             city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
