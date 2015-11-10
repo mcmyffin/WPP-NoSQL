@@ -51,7 +51,7 @@ class nosql:
     def importMongo(self, filePath,dbName):
         startTime = time.time()
         file = open(filePath)
-        db = self.m_client.get_database(self.dbName)
+        db = self.m_client.get_database(dbName)
         db.drop_collection(self.m_collection)
         db.create_collection(self.m_collection)
         col = db.get_collection(self.m_collection)
@@ -80,7 +80,7 @@ class nosql:
     def searchMongoPLZ(self, plz, dbName):
         search_argument     = json.loads("{\"_id\" : \""+plz+"\"}")
         search_presentation = json.loads("{\"city\" : 1}")
-        db = self.m_client.get_database(self.dbName)
+        db = self.m_client.get_database(dbName)
         lists = db.get_collection(self.m_collection).find_one(search_argument,search_presentation)
         try:
             return lists['city']
@@ -90,7 +90,7 @@ class nosql:
     def searchMongoCity(self, city, dbName):
         search_argument     = json.loads("{\"city\" : \""+city+"\"}")
         search_presentation = json.loads("{\"_id\" : 1}")
-        db = self.m_client.get_database(self.dbName)
+        db = self.m_client.get_database(dbName)
         lists =  db.get_collection(self.m_collection).find(search_argument,search_presentation)
 
         for x in lists: print(">> "+str(x['_id']))
