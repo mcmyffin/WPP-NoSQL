@@ -1,15 +1,7 @@
-import collections
-import json
-import sys
+import json,sys,collections,redis,time
+
 from getpass import _raw_input
-
-from pymongo.collection import Collection
-
-import redis
-import time
 from pymongo import MongoClient
-
-
 
 class nosql:
 
@@ -49,9 +41,8 @@ class nosql:
             key = m['_id']
             val = m['city']
 
-            ServerReply = self.r_client.set(key,val)
+            self.r_client.set(key,val)
             self.r_client.rpush(val,key)
-            print (">> "+key+": "+str(ServerReply))
 
         ### stop Timer ###
         importTime = time.time() - startTime
@@ -65,19 +56,14 @@ class nosql:
         db.create_collection(self.m_collection)
         col = db.get_collection(self.m_collection)
 
-        i = 1;
         ### read file and import ###
         for line in file.readlines():
             m = json.loads(line)
             col.insert_one(m)
-            # print(i+" | OK")
-            # i=i+1
 
         ### stop Timer ###
         importTime = time.time() - startTime
         print("import finished in %5.2f seconds" %(importTime))
-
-
 
     ### redis-db search methods ###
     def searchRedisPLZ(self, plz):
@@ -96,11 +82,10 @@ class nosql:
         search_presentation = json.loads("{\"city\" : 1}")
         db = self.m_client.get_database(self.m_db)
         lists = db.get_collection(self.m_collection).find_one(search_argument,search_presentation)
-
-
-        if hasattr(lists,"Collection") and len(list) > 0: lists
-        else: return ""
-
+        try:
+            return lists['city']
+        except TypeError:
+            return
 
     def searchMongoCity(self, city):
         search_argument     = json.loads("{\"city\" : \""+city+"\"}")
@@ -108,14 +93,11 @@ class nosql:
         db = self.m_client.get_database(self.m_db)
         lists =  db.get_collection(self.m_collection).find(search_argument,search_presentation)
 
-        for x in lists:
-            print(">> "+str(x['_id']))
-
+        for x in lists: print(">> "+str(x['_id']))
 
     def showUsage(self):
         print(self.usage)
         sys.exit(1)
-
 
 #### MAIN ####
 nosql = nosql()
