@@ -1,5 +1,5 @@
 ******** Aufgabe 8 ********
-a) import sinndeslebens.txt (benutze "nosql.py -i mongo")
+a) import sinndeslebens.txt
 b) Abfragen
 c) eigene Abfrage
 d) Änderung durchführen
