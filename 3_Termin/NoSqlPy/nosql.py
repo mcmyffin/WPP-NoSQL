@@ -29,7 +29,6 @@ class nosql:
             "   " + s_plz + "   : search interactive for plz\n"\
             "   " + exit +"   : escape interactive search\n"
 
-
     def importRedis(self, filePath):
         startTime = time.time()
         file = open(filePath)
@@ -46,7 +45,7 @@ class nosql:
 
         ### stop Timer ###
         importTime = time.time() - startTime
-        print("import finished in %5.2f seconds" %(importTime))
+        print(">> import finished in %5.2f seconds" %(importTime))
 
     def importMongo(self, filePath,dbName,coll):
         startTime = time.time()
@@ -63,44 +62,54 @@ class nosql:
 
         ### stop Timer ###
         importTime = time.time() - startTime
-        print("import finished in %5.2f seconds" %(importTime))
+        print(">> import finished in %5.2f seconds" %(importTime))
 
     ### redis-db search methods ###
     def searchRedisPLZ(self, plz):
-        return self.r_client.get(plz)
+        startTime = time.time()
+        print(str(self.r_client.get(plz)))
+        print(">> find result in %5.3f seconds" %((time.time()-startTime)))
 
     def searchRedisCity(self, city):
+        startTime = time.time()
         listSize = self.r_client.llen(city)
         plzList = []
         for i in range(listSize):
             plzList.append(self.r_client.lindex(city,i))
-        return plzList
+        print(str(plzList))
+        print(">> find result in %5.3f seconds" %((time.time()-startTime)))
 
     ### mongo-db search methods
     def searchMongoPLZ(self, plz, dbName, coll):
+        startTime = time.time()
+
         search_argument     = json.loads("{\"_id\" : \""+plz+"\"}")
         search_presentation = json.loads("{\"city\" : 1}")
         db = self.m_client.get_database(dbName)
         lists = db.get_collection(coll).find_one(search_argument,search_presentation)
         try:
-            return lists['city']
+            print(str(lists['city']))
         except TypeError:
-            return
+            print("NONE")
+        print(">> find result in %5.3f seconds" %((time.time()-startTime)))
 
     def searchMongoCity(self, city, dbName, coll):
+        startTime = time.time()
+
         search_argument     = json.loads("{\"city\" : \""+city+"\"}")
         search_presentation = json.loads("{\"_id\" : 1}")
         db = self.m_client.get_database(dbName)
         lists =  db.get_collection(coll).find(search_argument,search_presentation)
 
         for x in lists: print(">> "+str(x['_id']))
+        print(">> find result in %5.3f seconds" %((time.time()-startTime)))
 
     def showMongoDB(self):
-        for x  in self.m_client.database_names(): print("DB: "+str(x))
+        for x  in self.m_client.database_names(): print(">> DB: "+str(x))
 
     def showMongoCollection(self, db):
         db = self.m_client.get_database(db)
-        for x in db.collection_names(): print("Collection: "+str(x))
+        for x in db.collection_names(): print(">> Collection: "+str(x))
 
     def showUsage(self):
         print(self.usage)
@@ -136,8 +145,7 @@ elif a1 == nosql.s_plz:
     if a2 == nosql.redis:
         plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         while plz != nosql.exit:
-            city = nosql.searchRedisPLZ(plz)
-            print(">> "+str(city))
+            nosql.searchRedisPLZ(plz)
             plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
 
@@ -148,8 +156,7 @@ elif a1 == nosql.s_plz:
         coll   = _raw_input(">> Collection?: ")
         plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         while plz != nosql.exit:
-            city = nosql.searchMongoPLZ(plz,dbName, coll)
-            print(">> "+str(city))
+            nosql.searchMongoPLZ(plz,dbName, coll)
             plz = _raw_input(">> PLZ ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
 
@@ -158,8 +165,7 @@ elif a1 == nosql.s_city:
     if a2 == nosql.redis:
         city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         while city != nosql.exit:
-            plzList = nosql.searchRedisCity(city)
-            print(">> "+str(plzList))
+            nosql.searchRedisCity(city)
             city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
 
@@ -170,8 +176,7 @@ elif a1 == nosql.s_city:
         coll   = _raw_input(">> Collection?: ")
         city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         while city != nosql.exit:
-            plzList = nosql.searchMongoCity(city,dbName,coll)
-            # print(">> "+str(plzList))
+            nosql.searchMongoCity(city,dbName,coll)
             city = _raw_input(">> City ? | escape with \""+nosql.exit+"\" : ")
         sys.exit(0)
 nosql.showUsage()
