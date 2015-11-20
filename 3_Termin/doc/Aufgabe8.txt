@@ -1,4 +1,5 @@
 ******** Aufgabe 8 ********
+Lassen Sie sich nun die Vereine mit den jeweils folgenden Eigenschaften anzeigen:
 
 a) import sinndeslebens.txt
 	db.fussball.insert({name: 'HSV', gruendung: new Date(1887, 09, 29), farben: ['weiss', 'rot'], Tabellenplatz: 17, nike: 'n'});
@@ -14,7 +15,9 @@ a) import sinndeslebens.txt
 	db.fussball.insert({name: 'Stuttgart', gruendung: new Date(1893, 9, 9 ), farben: ['rot', 'weiss'], Tabellenplatz: 7, nike: 'n'});
 	db.fussball.insert({name: 'Werder', gruendung: new Date(1899,2,4), farben: ['gruen','weiss'], Tabellenplatz: 6, nike: 'j'});
 
-b) Abfragen
+b) Lassen Sie sich nun die Vereine mit den jeweils folgenden Eigenschaften anzeigen:
+
+
 	1. db.fussball.find({name: "Augsburg"})
 
 	2. db.fussball.find({$and: [{"nike": "j"},{"farben": "schwarz"}]})
@@ -25,13 +28,14 @@ b) Abfragen
 
 	5. db.fussball.find().sort({"Tabellenplatz": -1}).limit(1)
 
-	6. ????
+	6. db.fussball.find({Tabellenplatz: {$lt: 16}})
 
 c) eigene Abfrage
 	db.fussball.find({name: "HSV"}, {_id: 0})
 
 d) Änderung durchführen
-	db.fussball.update({name: "Augsburg"}, {Tabellenplatz: 1}) -> löscht das Dokument, da beim Tabellenplatz $set nicht angegeben würde (folie: 184 und 185)
+	db.fussball.update({name: "Augsburg"}, {Tabellenplatz: 1}) -> ändert das Dokument, sodass am Ende nur "_id" und "Tabellenplatz" im Dokument stehen.
+								      Da beim Tabellenplatz "$set" nicht angegeben würde (folie: 184 und 185)
 
 e) Änderung durchführen	
 	1. db.fussball.update({name: "Leverkusen"}, {$set:{Tabellenplatz: 2}})
