@@ -12,7 +12,9 @@ dist/
 nbdist/
 nbactions.xml
 .nb-gradle/
-
+build.xml
+manifest.mf
+nbproject/
 
 ### Java ###
 *.class
