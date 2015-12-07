@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
@@ -34,6 +35,7 @@ public class HBaseClient {
 
     private static String tableName = "PLZ_CITY";
     private static String family    = "Family";
+    private static String f_family  = "Fussball";
     private static String c_column  = "City";
     private static String plz_count = "PLZ_C";
     private static String plz_n     = "PLZ_";
@@ -49,7 +51,36 @@ public class HBaseClient {
     public static String arg_i      = "-i";
     public static String arg_help   = "--help";
     public static String arg_h      = "-h";
+    public static String arg_u      = "-u";
+    public static String arg_update = "--update";
 
+    
+//    public static boolean addColumnFamily(Connection con, String tableName, String newFamilyName){
+//        try {
+//            
+//            if(con.isClosed() || con.isAborted()){
+//                System.out.println("\n>> CANNOT CONNECT TO SERVER !!!");
+//                return false;
+//            }
+//            
+//            Admin admin = con.getAdmin();
+//            
+//            // disable table
+//            admin.disableTable(TableName.valueOf(tableName));
+//            
+//            HTableDescriptor tdiscriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
+//            HColumnDescriptor cdiscriptor = new HColumnDescriptor(newFamilyName);
+//
+//            
+//            tdiscriptor.addFamily(cdiscriptor);
+//            admin.enableTable(TableName.valueOf(tableName));
+//            
+//            return true;
+//        }catch(IOException ex){
+//            return false;
+//        }
+//    }
+    
     public static boolean createSchemaTables (Connection connection, String tableName, String familyName) {
         try {
             
@@ -61,6 +92,8 @@ public class HBaseClient {
             
             HTableDescriptor table = new HTableDescriptor(TableName.valueOf(tableName));
             table.addFamily(new HColumnDescriptor(familyName));
+            table.addFamily(new HColumnDescriptor(f_family));
+            
 
             try{
                 System.out.print("Creating table: "+tableName);
@@ -80,7 +113,9 @@ public class HBaseClient {
     public static boolean deleteTable(Connection con, String tableName) throws IOException{
         Admin admin = con.getAdmin();
         try{
-            admin.disableTable(TableName.valueOf(tableName));
+            TableName tName = TableName.valueOf(tableName);
+            if(!admin.isTableDisabled(tName));
+                admin.disableTable(TableName.valueOf(tableName));
             admin.deleteTable(TableName.valueOf(tableName));
             return true;
         }catch(IOException ex){
@@ -272,6 +307,8 @@ public class HBaseClient {
         System.out.println("\t\t"+arg_c+" OR "+arg_city);
         System.out.println("\tImport Data");
         System.out.println("\t\t"+arg_i+" OR "+arg_imp+" AND \"FULL_PATH/FILE\"");
+        System.out.println("\tUpdate Data");
+        System.out.println("\t\t"+arg_u+" OR "+arg_update);
         System.out.println("=============");
         
         System.exit(-1);
@@ -284,9 +321,15 @@ public class HBaseClient {
             List<String> fileContent  = DataManager.readFile(path);
             List<JSONObject> jsonList = JSonParser.parseToJSON(fileContent);
             Connection con = getServerConnection();
+            System.out.println(">> OPEN SERVER CONNECTION");
             
             // delete existing Table
-            deleteTable(con,tableName);
+            if(deleteTable(con,tableName)){
+                System.out.println(">> EXISTING TABLE FOUND");
+                System.out.println(">> TABLE DELETE");
+            }else{
+                System.out.println(">> EXISTING TABLE NOT FOUND");
+            }
             
             // create new Table
             if(!createSchemaTables(con,tableName, family)){
@@ -322,7 +365,7 @@ public class HBaseClient {
                 
                 if(Math.floor(curPercent) != lastPercent){
                     lastPercent = (int) Math.floor(curPercent);
-                    System.out.println("UPLOAD "+lastPercent+"%");
+                    System.out.println(">> UPLOAD "+lastPercent+"%");
                 }
 //                System.out.print(".");
                 i++;
@@ -330,12 +373,54 @@ public class HBaseClient {
             double uploadTime = (System.currentTimeMillis() - startTime)/1000.0;
             System.out.println(">> import successfull in "+uploadTime+" sec.");
             
+            // CLOSE CONNECTION
+            con.close();
+            System.out.println(">> CLOSE SERVER CONNECTION");
             
         } catch (IOException | JSONException ex) {
-            Logger.getLogger(HBaseClient.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(">> CANNOT CONNECT TO SERVER");
         }
     }
 
+    public static void update(){
+        Scanner s = new Scanner(System.in);
+        String[] citys;
+        String c_name;
+        String value;
+        
+        System.out.println(">> Citys? | split with ','");
+        citys = (s.nextLine()).split(",");
+        System.out.println(">> new ColumnName?");
+        c_name = s.nextLine();
+        System.out.println(">> Value?");
+        value  = s.nextLine();
+        System.out.println(">> OK, please wait ... ");
+        
+        try{
+            Connection con = getServerConnection();
+            System.out.println(">> OPEN CONNECTION TO SERVER");
+            
+            for(String city : citys){
+                int count = getPLZ_Count(con, city);
+                System.out.println(">> Search for '"+city+"'");
+                System.out.println(">> Found "+count+" entry(s)");
+                System.out.print(">> UPDATE [");
+                for(int i = 1; i <= count; i++){
+                    String plz = readAValue(con, tableName, city, family, plz_n+i);
+                    writeAValue(con, tableName, plz, f_family, c_name, value);
+                    System.out.print("=");
+                }
+                System.out.println("]");
+                System.out.println(count+" entry(s) updated\n");
+            }
+            
+            // CLOSE CONNECTION
+            con.close();
+            System.out.println(">> CLOSE CONNECTION TO SERVER");
+        }catch(IOException ex){
+            System.out.println(">> CANNOT CONNECT TO SERVER");
+        }
+    }
     
     public static void main(String[] args) throws IOException {
         switch (args.length) {
@@ -351,6 +436,7 @@ public class HBaseClient {
                 arg1 = args[0];
                 if(arg1.equals(arg_c) || arg1.equals(arg_city)) startSearchCity();
                 else if(arg1.equals(arg_p) || arg1.equals(arg_plz)) startSearchPLZ();
+                else if(arg1.equals(arg_u) || arg1.equals(arg_update)) update();
                 else showUsage();
                 break;
             default:

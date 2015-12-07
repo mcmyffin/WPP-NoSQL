@@ -1,0 +1,47 @@
+Termin 4 Info.
+
+Aufgabe 10)
+	a) 	Datenbank Schema:
+			Tabellen-Name = "PLZ_CITY"
+			Column-Family = "Family"
+			Column-Family-Fussball = "Fussball"
+			Column-City   = "City"
+			Column-PLZ_C  = "PLZ_C"
+			Column-PLZ_N  = "PLZ_"
+		Speicherdurchführung:
+			PLZ -> CITY:
+				KEY   = PLZ
+				VALUE = CITY
+				PUT Tabellen-Name ,KEY, Column-Family:Column-City, VALUE
+
+			// Da nicht Eindeutig, müssen mehrere Operationen getätigt werden
+			CITY -> PLZ:
+				KEY   = CITY
+				VALUE = PLZ		
+			// Operation-1: Zählen der bereits gespeicherten Abbildungen
+			// Wenn kein Ergebnis gefunden, dann existiert kein Eintrag und somit "count" = 0, sonst "count"
+			int count = GET Tabellen-Name, KEY, Column-Family:Column-PLZ_C
+
+			// Operation-2: Zähler der bereits gepeicherten Abbildungen erhöhen um 1:
+			PUT Tabellen-Name, KEY, Column-Family:Column-PLZ_C, count+1
+
+			// Operation-3: Speichern der Abbildung mit Column_PLZ_N+(count+1) Spalte
+			PUT Tabellen-Name, KEY, Column-Family:Column-PLZ_N+(count+1), VALUE
+
+	b)	Erweitern der Tabelle um eine Spalte:
+			KEY = "HAMBURG"
+			VALUE = "ja"
+			Column-Ja = "Ja"
+
+			// ==pseudocode==
+			int count = GET Tabellen-Name, KEY, Column-Family:Column-PLZ_C
+			for(int i = 1; i <= count ; i++)
+			{
+				plz = GET Tabellen-Name, KEY, Column-Family:Column_PLZ_N+(i)
+				PUT Tabellen-Name, plz, Column-Family-Fussball:Column-Ja, VALUE
+			}
+			
+	c)	Siehe Code
+	d)	Siehe Code
+	e)	Im Vergleich zu Key-Value/ Dokumentorientierte Datenbank war HBase vom Programmieraufwand am höchsten gewesen.
+		Sowohl Lines Of Code, als auch vom Verständnis der Arbeitsweise von HBase, war am Aufwändigsten.
