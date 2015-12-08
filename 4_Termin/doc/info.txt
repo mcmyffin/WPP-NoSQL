@@ -43,5 +43,5 @@ Aufgabe 10)
 			
 	c)	Siehe Code
 	d)	Siehe Code
-	e)	Im Vergleich zu Key-Value/ Dokumentorientierte Datenbank war HBase vom Programmieraufwand am höchsten gewesen.
-		Sowohl Lines Of Code, als auch vom Verständnis der Arbeitsweise von HBase, war am Aufwändigsten.
+	e)	Im Vergleich zu Key-Value/ Dokumentorientierte Datenbank war HBase vom Programmieraufwand am höchsten.
+		Sowohl Lines Of Code, als auch vom Verständnis der Arbeitsweise von HBase, war am aufwändigsten.
