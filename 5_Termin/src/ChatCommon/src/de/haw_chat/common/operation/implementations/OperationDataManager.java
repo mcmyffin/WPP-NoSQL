@@ -72,6 +72,7 @@ public final class OperationDataManager {
         storeOperationData(SERVER, 231, "ContactListEnd");
         storeOperationData(SERVER, 232, "ConfirmContactResponse");
         storeOperationData(SERVER, 233, "ConfirmContactAdd");
+        storeOperationData(SERVER, 234, "RequestConfirmContact");
     }
 
     public static OperationData getOperationData(int operationCode) {
