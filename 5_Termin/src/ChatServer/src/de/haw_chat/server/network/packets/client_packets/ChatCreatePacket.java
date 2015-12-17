@@ -1,5 +1,6 @@
 package de.haw_chat.server.network.packets.client_packets;
 
+import de.haw_chat.server.network.Exceptions.IllegalArgumentPacketException;
 import de.haw_chat.server.network.interfaces.ClientThread;
 
 /**
@@ -7,9 +8,15 @@ import de.haw_chat.server.network.interfaces.ClientThread;
  */
 public class ChatCreatePacket extends AbstractClientPacket {
 
-    public ChatCreatePacket(ClientThread clientThread, String messageString){
+    private String username;
+    public ChatCreatePacket(ClientThread clientThread, String messageString) throws IllegalArgumentPacketException {
         super(clientThread);
+        String[] splitedMessageString = messageString.split(" ");
+
+        if(splitedMessageString.length != 2) throw new IllegalArgumentPacketException();
+        username = splitedMessageString[1];
     }
+
 
     @Override
     public void process() {

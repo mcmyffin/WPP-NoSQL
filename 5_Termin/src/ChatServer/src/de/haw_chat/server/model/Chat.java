@@ -14,5 +14,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public class Chat {
 
+    private String user1;
+    private String user2;
     // TODO
 }

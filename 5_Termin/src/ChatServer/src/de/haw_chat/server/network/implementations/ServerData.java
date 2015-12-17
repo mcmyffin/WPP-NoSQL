@@ -1,6 +1,8 @@
 package de.haw_chat.server.network.implementations;
 
 import de.haw_chat.server.network.interfaces.ClientThread;
+import de.haw_chat.server.network.interfaces.ServerPersistence;
+
 import java.util.*;
 import static com.google.common.base.Preconditions.*;
 
@@ -9,11 +11,14 @@ import static com.google.common.base.Preconditions.*;
  * Created by Dima on 14.12.2015
  */
 public final class ServerData {
-    private static ServerData instance;
-    private Map<String,ClientThread>        takenUsernames;
+
+    private static ServerData           instance;
+    private Map<String,ClientThread>    takenUsernames;
+    private ServerPersistence           serverPersistence;
 
     private ServerData() {
-        this.takenUsernames = new HashMap();
+        this.takenUsernames    = new HashMap();
+        this.serverPersistence = new ServerPersistenceImpl();
     }
 
     public static ServerData getInstance() {
@@ -22,13 +27,19 @@ public final class ServerData {
         return instance;
     }
 
-    public synchronized boolean addUserClient(String username, ClientThread clientThread){
+    // TODO
+    public synchronized void login(String username, String password, ClientThread clientThread){
         checkNotNull(username);
+        checkNotNull(password);
         checkNotNull(clientThread);
-        if(takenUsernames.containsKey(username)) return false;
 
+        if(clientThread.getData().getUsername() != null) // client already logged in
+        if(containsUser(username)) // username already taken
+        if(!serverPersistence.loginUser(username, password)) // username or password wrong
+
+        // addloginSession
+        //serverPersistence.addLoginSession()
         takenUsernames.put(username,clientThread);
-        return true;
     }
 
     public synchronized boolean containsUser(String user){
