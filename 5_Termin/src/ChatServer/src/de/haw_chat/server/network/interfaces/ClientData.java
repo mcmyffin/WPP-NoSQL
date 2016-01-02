@@ -8,6 +8,9 @@ import java.util.Set;
 public interface ClientData {
 
     public String getUsername();
-    public void setUsername(String username);
+    public String getPassword();
+
+    public void setLoginData(String username, String password);
+    public void setLogout();
     public boolean isLoggedIn();
 }

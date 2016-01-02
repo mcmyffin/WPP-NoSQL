@@ -14,6 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 final class ClientDataImpl implements ClientData {
 
     private String username;
+    private String password;
     private ClientDataImpl() {
     }
 
@@ -27,12 +28,25 @@ final class ClientDataImpl implements ClientData {
     }
 
     @Override
-    public boolean isLoggedIn() {
-        return getUsername() != null;
+    public String getPassword() {
+        return password;
     }
 
     @Override
-    public void setUsername(String username) {
+    public void setLoginData(String username, String password) {
         this.username = username;
+        this.password = password;
     }
+
+    @Override
+    public void setLogout() {
+        this.username = null;
+        this.password = null;
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return (getUsername() != null && getPassword() != null);
+    }
+
 }
