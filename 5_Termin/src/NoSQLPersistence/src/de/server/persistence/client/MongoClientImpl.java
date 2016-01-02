@@ -30,16 +30,7 @@ public class MongoClientImpl implements MongoClient{
     
     private void init(){
         this.database = client.getDB(conf.getDB());
-        if(database.collectionExists(conf.getUserCollectionName()))   
-            userCollection   = database.getCollection(conf.getUserCollectionName());
-        if(database.collectionExists(conf.getContactCollectionName()))
-            contactCollection= database.getCollection(conf.getContactCollectionName());
-        if(database.collectionExists(conf.getChatCollectionName()))   
-            chatCollection   = database.getCollection(conf.getChatCollectionName());
-
-        if(userCollection    == null) userCollection   = database.createCollection(conf.getUserCollectionName(),null);
-        if(contactCollection == null) contactCollection= database.createCollection(conf.getContactCollectionName(),null);
-        if(chatCollection    == null) chatCollection   = database.createCollection(conf.getChatCollectionName(),null);
+        chatCollection   = database.getCollection(conf.getChatCollectionName());
     }
     
     private boolean isDBExists(String databaseName){

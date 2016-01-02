@@ -20,20 +20,7 @@ public interface MongoConfiguration {
      */
     public String getDB();
     
-    /**
-     * MongoDB Collection Name.
-     * 
-     * @return UserCollection Name
-     */
-    public String getUserCollectionName();
-    
-    /**
-     * MongoDB Collection Name.
-     * 
-     * @return ContactCollection Name
-     */
-    public String getContactCollectionName();
-    
+   
     /**
      * MongoDB Collection Name.
      * 
