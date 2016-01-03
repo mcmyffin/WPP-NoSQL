@@ -1,9 +1,13 @@
 package de.client.UI.Dialog;
 
-import java.awt.EventQueue;
-import java.awt.Frame;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
 
 /**
  *
@@ -14,18 +18,22 @@ public class LogDialog extends javax.swing.JDialog {
     private static String log = "";
     private static LogDialog instance;
     
-    public LogDialog() {
-        
+    private LogDialog(JFrame parent, boolean modal) {
+        super(parent,modal);
         initComponents();
         logTextArea.setText(log);
         initLog();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(parent);
     }
     
-    public synchronized static LogDialog getInstance(){
-        if(instance == null) instance = new LogDialog();
+    public static LogDialog getInstance(JFrame f){
+        if(instance == null) instance = new LogDialog(f,false);
         return instance;
+    }
+    
+    public void showLog(){
+        instance.setVisible(true);
     }
     
     private void initLog(){
@@ -54,7 +62,13 @@ public class LogDialog extends javax.swing.JDialog {
     public static synchronized void addLogLine(String line){
         String time = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(new Date());
         log +=time+" | "+line+"\n";
-        getInstance().logTextArea.setText(log);
+        JTextArea ta = instance.logTextArea;
+        ta.setText(log);
+        try {
+            ta.setCaretPosition(ta.getLineStartOffset(ta.getLineCount()-1));
+        } catch (BadLocationException ex) {
+            Logger.getLogger(LogDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private synchronized void addInitLogLine(String line){
@@ -84,12 +98,16 @@ public class LogDialog extends javax.swing.JDialog {
 
         jPanel1.setBackground(new java.awt.Color(254, 254, 254));
 
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(636, 353));
+
         logTextArea.setEditable(false);
         logTextArea.setBackground(new java.awt.Color(1, 1, 1));
         logTextArea.setFont(new java.awt.Font("Liberation Sans", 0, 10)); // NOI18N
         logTextArea.setForeground(new java.awt.Color(254, 254, 254));
+        logTextArea.setLineWrap(true);
         logTextArea.setRows(5);
         logTextArea.setText("dasdasdasdasdasd\n");
+        logTextArea.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jScrollPane1.setViewportView(logTextArea);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -98,7 +116,7 @@ public class LogDialog extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 636, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(

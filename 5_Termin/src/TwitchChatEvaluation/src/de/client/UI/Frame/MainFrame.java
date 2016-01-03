@@ -1,8 +1,10 @@
 package de.client.UI.Frame;
 
 import de.client.UI.IPersistenceUI;
-import de.client.UI.PersistenceUI;
+import java.net.ConnectException;
+import java.util.List;
 import java.util.Set;
+
 
 /**
  *
@@ -53,6 +55,7 @@ public class MainFrame extends javax.swing.JFrame{
         Menu_Disconnect = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Twitch Message Analysis");
         setResizable(false);
 
         connectButton.setText("Connect");
@@ -245,6 +248,11 @@ public class MainFrame extends javax.swing.JFrame{
         Menu_Edit.add(MItem_Connection);
 
         MItem_Analyse.setText("Analyse");
+        MItem_Analyse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MItem_AnalyseActionPerformed(evt);
+            }
+        });
         Menu_Edit.add(MItem_Analyse);
 
         jMenuBar1.add(Menu_Edit);
@@ -263,6 +271,8 @@ public class MainFrame extends javax.swing.JFrame{
 
         Menu_Disconnect.setBackground(new java.awt.Color(140, 140, 140));
         Menu_Disconnect.setText("Disconnect");
+        Menu_Disconnect.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        Menu_Disconnect.setFocusable(false);
         Menu_Disconnect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         Menu_Disconnect.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         Menu_Disconnect.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -342,10 +352,6 @@ public class MainFrame extends javax.swing.JFrame{
         persistence.openLogDialog();
     }//GEN-LAST:event_MItem_ShowLogActionPerformed
 
-    private void Menu_DisconnectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Menu_DisconnectMouseClicked
-        if(persistence.disconnect()) switchPanelComponents();
-    }//GEN-LAST:event_Menu_DisconnectMouseClicked
-
     private void showTimeDiagramButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showTimeDiagramButtonActionPerformed
         persistence.showTimeDiagram();
     }//GEN-LAST:event_showTimeDiagramButtonActionPerformed
@@ -364,8 +370,20 @@ public class MainFrame extends javax.swing.JFrame{
     }//GEN-LAST:event_startUserAnalyseButtonActionPerformed
 
     private void MItem_CalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MItem_CalcActionPerformed
-        persistence.calc();
+        try {
+            persistence.calc();
+        } catch (Exception ex) {
+            persistence.showInfoFail("Calc FAIL", "Client is not connected!");
+        }
     }//GEN-LAST:event_MItem_CalcActionPerformed
+
+    private void MItem_AnalyseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MItem_AnalyseActionPerformed
+        persistence.showAnalyseDialog();
+    }//GEN-LAST:event_MItem_AnalyseActionPerformed
+
+    private void Menu_DisconnectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Menu_DisconnectMouseClicked
+        if(persistence.disconnect()) switchPanelComponents();
+    }//GEN-LAST:event_Menu_DisconnectMouseClicked
 
     
     
@@ -380,7 +398,7 @@ public class MainFrame extends javax.swing.JFrame{
         wordCountLable.setText(wordCount.toString());
         userCountLable.setText(userCount.toString());
         
-        Set<String> usernames = persistence.getUsernames();
+        List<String> usernames = persistence.getUsernames();
         usernameComboBox.removeAllItems();
         for(String user : usernames) usernameComboBox.addItem(user);
         usernameComboBox.setSelectedIndex(0);

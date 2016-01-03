@@ -1,5 +1,7 @@
 package de.client.UI;
 
+import java.net.ConnectException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,9 +49,11 @@ public interface IPersistenceUI {
 
     public void showInfoUser(String username);
 
-    public void calc();
+    public void calc() throws Exception;
     
-    public Set<String> getUsernames();
+    public List<String> getUsernames();
+
+    public void showAnalyseDialog();
     
     
 }

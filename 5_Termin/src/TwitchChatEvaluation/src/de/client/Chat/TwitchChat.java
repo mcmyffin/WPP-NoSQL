@@ -1,11 +1,8 @@
 package de.client.Chat;
 
-import de.server.persistence.ServerPersistence;
 import de.server.persistence.result.MessageData;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,9 +12,6 @@ import java.util.Map;
  */
 public class TwitchChat implements IEval, Runnable{
 
-    private final Map<String,Long>  wordCountMap;
-    private final Map<String,Long>  messageCountUserMap;
-    private final Map<Integer,Long>  messageInHourMap;
     private long  wordCount = 0L;
     
     private final List<MessageData> list;
@@ -25,12 +19,11 @@ public class TwitchChat implements IEval, Runnable{
     private final int toIndex;
     
     private final Thread thread;
+    private final TwitchChatManager manager;
     
-    public TwitchChat(List<MessageData> list, int fromIndex, int toIndex){
+    public TwitchChat(List<MessageData> list, int fromIndex, int toIndex, TwitchChatManager m){
         
-        this.wordCountMap        = new LinkedHashMap(toIndex-fromIndex);
-        this.messageCountUserMap = new LinkedHashMap(toIndex-fromIndex);
-        this.messageInHourMap    = new LinkedHashMap(toIndex-fromIndex);
+        this.manager = m;
         this.list = list;
         this.fromIndex = fromIndex;
         this.toIndex = toIndex;
@@ -38,13 +31,11 @@ public class TwitchChat implements IEval, Runnable{
     }
     
     
-    public TwitchChat(List<MessageData> list){
+    public TwitchChat(List<MessageData> list, TwitchChatManager m){
         
+        this.manager = m;
         this.fromIndex = 0;
         this.toIndex = list.size();
-        this.wordCountMap        = new LinkedHashMap(toIndex);
-        this.messageCountUserMap = new LinkedHashMap(toIndex);
-        this.messageInHourMap    = new LinkedHashMap(toIndex);
         this.list = list;
         this.thread = new Thread(this);
     }
@@ -68,44 +59,27 @@ public class TwitchChat implements IEval, Runnable{
         String message  = md.getMessage();
 
         // split message by WhiteSpace
-        String[] splittedMessage = message.split(" ");
+        String[] splittedMessage = message.split("\\s+");
 
         // count words
         wordCount += splittedMessage.length;
 
         for(String word : splittedMessage){
-            if(wordCountMap.containsKey(word)){
-                long count = wordCountMap.get(word);
-                wordCountMap.put(word, count+1);
-            }else{
-                wordCountMap.put(word, 1L);
-            }
+            manager.addWordCount(word);
         }
     }
     
     private void calcUserMessageCount(MessageData md){
         String username = md.getUser();
-        if(messageCountUserMap.containsKey(username)){
-            long count = messageCountUserMap.get(username);
-            messageCountUserMap.put(username, count+1);
-        }else{
-            messageCountUserMap.put(username, 1L);
-        }
+        manager.addUserMessageCount(username);
     }
     
     private void  calcTimeWithMostMessages(MessageData data){
-        
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(data.getTimeStamp());
         
         int hour = cal.get(Calendar.HOUR_OF_DAY);
-        
-        if(messageInHourMap.containsKey(hour)){
-            long count = messageInHourMap.get(hour);
-            messageInHourMap.put(hour, count+1);
-        }else{
-            messageInHourMap.put(hour, 1L);
-        }
+        manager.addMessagePerHourCount(hour);
     }
     
     
@@ -154,22 +128,7 @@ public class TwitchChat implements IEval, Runnable{
     public boolean isRunning() {
         return thread.isAlive();
     }
-
-    @Override
-    public Map<String, Long> getCountWordMap() {
-        return wordCountMap;
-    }
-
-    @Override
-    public Map<String, Long> getCountUserMassageMap() {
-        return messageCountUserMap;
-    }
-
-    @Override
-    public Map<Integer, Long> getMessagePerHourMap() {
-        return messageInHourMap;
-    }
-
+    
     @Override
     public long getWordCount() {
         return wordCount;

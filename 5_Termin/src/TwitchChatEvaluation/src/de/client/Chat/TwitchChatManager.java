@@ -1,6 +1,7 @@
 package de.client.Chat;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import de.client.UI.Dialog.LoadingDialog;
 import de.client.UI.Dialog.LogDialog;
 import de.server.persistence.ServerPersistence;
 import de.server.persistence.result.MessageData;
@@ -13,88 +14,116 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
 import org.jfree.chart.ChartFactory;
-import org.jfree.data.xy.AbstractIntervalXYDataset;
-import org.jfree.data.xy.DefaultIntervalXYDataset;
-import org.jfree.data.xy.DefaultTableXYDataset;
-import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.data.xy.XYBarDataset;
-import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.Hour;
-import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.TimeSeriesDataItem;
-import org.jfree.data.time.TimeTableXYDataset;
-import org.jfree.data.xy.AbstractXYDataset;
-import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 
 /**
  *
  * @author dima
  */
-public class TwitchChatManager implements Runnable{
+public class TwitchChatManager implements Runnable, IChatManager{
 
-    private final int maxListElemPerThread = 100000;
+    private final int maxListElemPerThread;
     private final Thread thread;
-    private final Map<String,Long> countWordMap;
-    private final Map<String,Long> countUserMessageMap;
+    private final Map<String,Long>  countWordMap;
+    private final Map<String,Long>  countUserMessageMap;
     private final Map<Integer,Long> countMessagePerHourMap;
-    private long wordCount = 0L;
+    private long wordCount;
     
     private Queue<String> countWordQueue;
     private Queue<String> countUserMessageQueue;
     
     private final ServerPersistence serverPersistence;
-    private List<TwitchChat> chats;
+    private final List<TwitchChat>  chats;
+    private List<MessageData>       serverList;
     
-    public TwitchChatManager(ServerPersistence serverPersistence){
+    public TwitchChatManager(ServerPersistence serverPersistence, int maxElemPerThread){
         checkNotNull(serverPersistence);
         this.serverPersistence = serverPersistence;
         this.thread = new Thread(this);
         
-        chats = new ArrayList();
-        countWordMap = new LinkedHashMap();
-        countUserMessageMap = new LinkedHashMap();
+        maxListElemPerThread = maxElemPerThread;
+        chats                = new ArrayList();
+        countWordMap         = new LinkedHashMap();
+        countUserMessageMap  = new LinkedHashMap();
         countMessagePerHourMap = new LinkedHashMap();
     }
-    
-    public void startCalc(){
-        thread.start();
+    private void initMaps(){
+        countMessagePerHourMap.clear();
+        countUserMessageMap.clear();
+        countWordMap.clear();
+        
+        for(int i = 0; i < 24; i++){
+            countMessagePerHourMap.put(i, 0L);
+        }
     }
-    
-    private void init(){
-        LogDialog.addLogLine(">> [GET SERVER DATA]");
-        List<MessageData> list = serverPersistence.getAllMessages();
-        LogDialog.addLogLine("<< "+list.size());
+    private void initClass(){
+        
+        if(serverList == null){
+            LogDialog.addLogLine(">> [GET SERVER DATA]");
+            List<MessageData> list = serverPersistence.getAllMessages();
+            LogDialog.addLogLine("<< "+list.size());
+            LogDialog.addLogLine(">> CACHE SERVER DATA");
+            serverList = list;
+        }else{
+            LogDialog.addLogLine(">> [GET CACHED SERVER DATA]");
+            LogDialog.addLogLine("<< "+serverList.size());
+        }
         
         int fromIndex = 0;
         int toIndex = maxListElemPerThread;
+        wordCount = 0L;
         
         LogDialog.addLogLine(">> [INIT THREADS]");
-        while(fromIndex < list.size()){
+        while(fromIndex < serverList.size()){
             
-            if(toIndex > list.size()) toIndex = list.size();
-            List<MessageData> sublist = list.subList(fromIndex, toIndex);
-            TwitchChat chat = new TwitchChat(sublist);
+            if(toIndex > serverList.size()) toIndex = serverList.size();
+            List<MessageData> sublist = serverList.subList(fromIndex, toIndex);
+            TwitchChat chat = new TwitchChat(sublist,this);
 //            TwitchChat chat = new TwitchChat(list,fromIndex,toIndex);
             chat.calcEvaluation();
             chats.add(chat);
             fromIndex = toIndex;
             toIndex  += maxListElemPerThread;
         }
-        LogDialog.addLogLine("<< "+chats.size()+" RUNNING");
+        LogDialog.addLogLine("<< "+chats.size()+" NOW RUNNING");
     }
 
-    public Thread getThread(){
-        return this.thread;
+    synchronized void addWordCount(String key){
+        if(countWordMap.containsKey(key)){
+            long count = countWordMap.get(key);
+            countWordMap.put(key, count+1);
+        }else{
+            countWordMap.put(key, 1L);
+        }
+    }
+    synchronized void addUserMessageCount(String key){
+        if(countUserMessageMap.containsKey(key)){
+            long count = countUserMessageMap.get(key);
+            countUserMessageMap.put(key, count+1);
+        }else{
+            countUserMessageMap.put(key, 1L);
+        }
     }
     
-    private void getResults(){
+    synchronized void addMessagePerHourCount(Integer key){
+        if(countMessagePerHourMap.containsKey(key)){
+            long count = countMessagePerHourMap.get(key);
+            countMessagePerHourMap.put(key, count+1);
+        }else{
+            countMessagePerHourMap.put(key, 1L);
+        }
+    }
+    
+    
+    private void getSortData(){
         LogDialog.addLogLine(">> START SORT DATA");
         // init Queue countWord
         countWordQueue = new PriorityQueue(countWordMap.keySet().size(), new ValueStringComparator(countWordMap));
@@ -104,22 +133,17 @@ public class TwitchChatManager implements Runnable{
         countUserMessageQueue = new PriorityQueue(countUserMessageMap.keySet().size(), new ValueStringComparator(countUserMessageMap));
         countUserMessageQueue.addAll(countUserMessageMap.keySet());
         LogDialog.addLogLine("<< SORT DATA DONE");
-        
-//        showCountWord(countWordQueue);
-//        showCountUserMessage(countUserMessageQueue);
-//        showCountMessagePerHour();
     }
     
     private void showCountWord(Queue<String> queue){
-        int words = 20;
+        int words = queue.size();
         if(queue.size() < words) words = queue.size();
         
         System.out.println("=== Most most common "+words+" Words of "+wordCount+"===");
-        for(int i = 1; i <= words; i++){
+        for(String word : queue){
             
-            String word = queue.poll();
             long   count= countWordMap.get(word);
-            String line = "#"+i+" : word = '"+word+"', count = '"+count+"'";
+            String line = "#"+countWordMap.get(word)+" : word = '"+word+"'";
             
             System.out.println(line);
         }
@@ -191,8 +215,9 @@ public class TwitchChatManager implements Runnable{
     @Override
     public void run() {
         long start = System.currentTimeMillis();
-        init();
-        
+        initMaps();
+        initClass();
+        LoadingDialog.setStatus("ANALYSING DATA");
         while(!thread.isInterrupted() && !chats.isEmpty()){
             
             for(TwitchChat chat : chats){
@@ -204,37 +229,79 @@ public class TwitchChatManager implements Runnable{
                 }
                 LogDialog.addLogLine("<< THREAD ["+chat.getThread().getName()+"] finished work");
                 LogDialog.addLogLine(">> COLLECT DATA");
-                countWordMap.putAll(chat.getCountWordMap());
-                countUserMessageMap.putAll(chat.getCountUserMassageMap());
-                countMessagePerHourMap.putAll(chat.getMessagePerHourMap());
+                
                 wordCount+=chat.getWordCount();
                 LogDialog.addLogLine("<< FINISHED COLLECT DATA");
+                LoadingDialog.setStatus("DONE");
             }
             LogDialog.addLogLine("<< ALL THREADS DONE");
-            LogDialog.addLogLine(">> FINISHED IN "+(System.currentTimeMillis()-start)/1000.0+" sec");
-            getResults();
-            
+            getSortData();
+            LogDialog.addLogLine("=== FINISHED IN "+(System.currentTimeMillis()-start)/1000.0+" sec ===");
             thread.interrupt();
         }
     }
     
+    /*** IChatManager ***/
+    
+    @Override
+    public void startCalc(){
+        thread.start();
+    }
+    
+    @Override
+    public Thread getThread(){
+        return this.thread;
+    }
+    
+    @Override
     public Number getUserCount(){
         return countUserMessageMap.keySet().size();
     }
     
+    @Override
     public Number getWordCount(){
         return wordCount;
     }
     
+    @Override
     public String getTimeRange(){
-        return  "?? - ??";
+        return  serverPersistence.getDataTimeRange();
     }
     
+    @Override
     public Number getDataCount(){
         return serverPersistence.getMessageCount();
     }
 
-    public Set<String> getUsernames() {
-        return countUserMessageMap.keySet();
+    @Override
+    public List<String> getUsernames() {
+        List<String> list = new ArrayList(countUserMessageQueue.size());
+        list.addAll(countUserMessageQueue);
+        return list;
     }
+
+    @Override
+    public List<MessageData> getServerList() {
+        return serverList;
+    }
+
+    @Override
+    public Map<Integer, Long> getMessagePerHourMap() {
+        return countMessagePerHourMap;
+    }
+
+    @Override
+    public Queue<String> getCountWordsQueue() {
+        Queue<String> q = new PriorityQueue<>(countWordQueue);
+        return q;
+    }
+
+    @Override
+    public Map<String, Long> getCoutWordsMap() {
+        return countWordMap;
+    }
+    
+    
+    
+    
 }
