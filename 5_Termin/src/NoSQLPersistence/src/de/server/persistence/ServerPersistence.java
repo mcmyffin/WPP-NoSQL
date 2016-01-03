@@ -1,6 +1,8 @@
 package de.server.persistence;
 
+import de.server.persistence.Exceptions.UserNotFoundException;
 import de.server.persistence.result.MessageData;
+import de.server.persistence.result.UserData;
 import java.util.List;
 
 /**
@@ -19,9 +21,14 @@ public interface ServerPersistence {
    
     public List<MessageData> getAllMessages();
     
+    
     public long getMessageCount();
     
     public void dropChatCollection();
+    
+    public String getDataTimeRange();
+    
+    public UserData getUserData(String username) throws UserNotFoundException;
     
     public List<MessageData> getMessages(int from, int to);
 }
