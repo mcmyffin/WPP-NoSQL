@@ -1,6 +1,7 @@
 package de.server.persistence;
 
 import de.server.persistence.Exceptions.UserNotFoundException;
+import de.server.persistence.result.HourActivity;
 import de.server.persistence.result.MessageData;
 import de.server.persistence.result.UserData;
 import java.util.List;
@@ -30,5 +31,9 @@ public interface ServerPersistence {
     
     public UserData getUserData(String username) throws UserNotFoundException;
     
+    public HourActivity getHourActivityFromUser(String username) throws UserNotFoundException;
+    
     public List<MessageData> getMessages(int from, int to);
+    
+    public ServerPersistence clone();
 }

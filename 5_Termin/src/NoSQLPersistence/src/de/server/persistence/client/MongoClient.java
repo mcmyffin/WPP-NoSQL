@@ -18,4 +18,5 @@ public interface MongoClient {
     public DBCollection getUserCollection();
     public DBCollection getContactCollection();
     public DBCollection getChatCollection();
+    public MongoConfiguration getConfiguration();
 }

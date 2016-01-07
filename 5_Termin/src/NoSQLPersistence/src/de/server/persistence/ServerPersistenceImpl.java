@@ -1,6 +1,7 @@
 package de.server.persistence;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -8,6 +9,8 @@ import com.mongodb.util.JSON;
 import de.server.persistence.Exceptions.UserNotFoundException;
 import de.server.persistence.result.*;
 import de.server.persistence.client.*;
+import de.server.persistence.client.Exeptions.DataBaseNotFoundException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
@@ -34,7 +37,19 @@ public class ServerPersistenceImpl implements ServerPersistence{
     private DBObject createDBObject(String json){
         return (DBObject) JSON.parse(json);
     }
-    
+
+    @Override
+    public ServerPersistence clone() {
+        try{
+            MongoConfiguration conf = m_client.getConfiguration();
+            MongoClient c = ClientFactory.createMongoClient(conf);
+            return new ServerPersistenceImpl(c);
+            
+        }catch(DataBaseNotFoundException|UnknownHostException ex){
+            ex.printStackTrace();
+        }
+        return null;
+    }
     
     @Override
     public synchronized void messageSend(long t, String usr, String msg){
@@ -49,7 +64,7 @@ public class ServerPersistenceImpl implements ServerPersistence{
     }
 
     @Override
-    public long getMessageCount() {
+    public synchronized long getMessageCount() {
         return m_client.getChatCollection().count();
     }
  
@@ -72,7 +87,7 @@ public class ServerPersistenceImpl implements ServerPersistence{
     }
 
     @Override
-    public List<MessageData> getMessages(int from, int to) {
+    public synchronized List<MessageData> getMessages(int from, int to) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -82,7 +97,7 @@ public class ServerPersistenceImpl implements ServerPersistence{
     }
 
     @Override
-    public String getDataTimeRange() {
+    public synchronized String getDataTimeRange() {
         
         DBObject search = new BasicDBObject();
         DBObject prenstation = new BasicDBObject("_id", true);
@@ -125,7 +140,7 @@ public class ServerPersistenceImpl implements ServerPersistence{
     }
     
     @Override
-    public UserData getUserData(String username) throws UserNotFoundException{
+    public synchronized UserData getUserData(String username) throws UserNotFoundException{
         checkNotNull(username);
         if(!userExists(username)) throw new UserNotFoundException();
         
@@ -160,6 +175,27 @@ public class ServerPersistenceImpl implements ServerPersistence{
             // create MessageObj
             MessageData md = new MessageDataImpl(name, time, message);
             messageData.add(md);
+        }
+        return new UserDataImpl(username, countWordMap, messageData);
+    }
+
+    @Override
+    public synchronized HourActivity getHourActivityFromUser(String username) throws UserNotFoundException {
+        checkNotNull(username);
+        if(!userExists(username)) throw new UserNotFoundException();
+        
+        // INIT search Argument
+        DBObject searchArgument = new BasicDBObject("username", username);
+        DBObject presentation   = new BasicDBObject("_id", true);
+        // GET result Cursor
+        DBCursor cursor = m_client.getChatCollection().find(searchArgument,presentation);
+        HourActivity hourActivity = new HourActivityImpl();
+        
+        while(cursor.hasNext()){
+            DBObject line = cursor.next();
+            
+            // get Arguments
+            long time = Long.parseLong(line.get("_id").toString());
             
             // create hour
             Calendar c = Calendar.getInstance();
@@ -173,8 +209,9 @@ public class ServerPersistenceImpl implements ServerPersistence{
                 ex.printStackTrace();
             }
         }
-        return new UserDataImpl(username, countWordMap, messageData, hourActivity);
+        return hourActivity;
     }
+    
     
     
 }

@@ -77,4 +77,9 @@ public class MongoClientImpl implements MongoClient{
     public DBCollection getChatCollection() {
         return chatCollection;
     }
+
+    @Override
+    public MongoConfiguration getConfiguration() {
+        return conf;
+    }
 }

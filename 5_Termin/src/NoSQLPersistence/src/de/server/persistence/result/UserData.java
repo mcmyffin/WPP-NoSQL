@@ -12,5 +12,4 @@ public interface UserData {
     public String getName();
     public List<MessageData> getMessages();
     public Map<String,Long> getCountWordMap();
-    public HourActivity getActivity();
 }
