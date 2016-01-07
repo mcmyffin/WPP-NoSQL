@@ -1,9 +1,7 @@
-package de.client.UI.Frame;
+package deu.client.UI.Frame;
 
-import de.client.UI.IPersistenceUI;
-import java.net.ConnectException;
+import deu.client.UI.IPersistenceUI;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -20,6 +18,7 @@ public class MainFrame extends javax.swing.JFrame{
         MainPanel.setVisible(false);
         connectPanel.setVisible(true);
         Menu_Disconnect.setVisible(false);
+        analysisPanel.setVisible(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -37,12 +36,13 @@ public class MainFrame extends javax.swing.JFrame{
         wordCountLable = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         userCountLable = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        analysisPanel = new javax.swing.JPanel();
         showTimeDiagramButton = new javax.swing.JButton();
         showListTopWordsButton = new javax.swing.JButton();
         showListTopUserButton = new javax.swing.JButton();
         usernameComboBox = new javax.swing.JComboBox();
         startUserAnalyseButton = new javax.swing.JButton();
+        showPieChart = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         Menu_Menu = new javax.swing.JMenu();
         MItem_Calc = new javax.swing.JMenuItem();
@@ -109,8 +109,8 @@ public class MainFrame extends javax.swing.JFrame{
         userCountLable.setText("?");
         userCountLable.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jPanel2.setBackground(new java.awt.Color(235, 233, 233));
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Analyse", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
+        analysisPanel.setBackground(new java.awt.Color(235, 233, 233));
+        analysisPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Analyse", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP));
 
         showTimeDiagramButton.setText("Zeit Diagram - Anzahl der Nachrichten/ Stunde");
         showTimeDiagramButton.addActionListener(new java.awt.event.ActionListener() {
@@ -119,14 +119,14 @@ public class MainFrame extends javax.swing.JFrame{
             }
         });
 
-        showListTopWordsButton.setText("Liste - Top 100 Wörter");
+        showListTopWordsButton.setText("Tabelle - Top Wörter");
         showListTopWordsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 showListTopWordsButtonActionPerformed(evt);
             }
         });
 
-        showListTopUserButton.setText("Liste - Top 100 User");
+        showListTopUserButton.setText("Tabelle - Top User");
         showListTopUserButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 showListTopUserButtonActionPerformed(evt);
@@ -142,25 +142,33 @@ public class MainFrame extends javax.swing.JFrame{
             }
         });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        showPieChart.setText("Torten Diagramm - User-Typ");
+        showPieChart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showPieChartActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout analysisPanelLayout = new javax.swing.GroupLayout(analysisPanel);
+        analysisPanel.setLayout(analysisPanelLayout);
+        analysisPanelLayout.setHorizontalGroup(
+            analysisPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analysisPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(analysisPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(showTimeDiagramButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(showListTopWordsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(showListTopUserButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(analysisPanelLayout.createSequentialGroup()
                         .addComponent(usernameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(startUserAnalyseButton, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)))
+                        .addComponent(startUserAnalyseButton, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
+                    .addComponent(showPieChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        analysisPanelLayout.setVerticalGroup(
+            analysisPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analysisPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(showTimeDiagramButton)
                 .addGap(18, 18, 18)
@@ -168,7 +176,9 @@ public class MainFrame extends javax.swing.JFrame{
                 .addGap(18, 18, 18)
                 .addComponent(showListTopUserButton)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(showPieChart)
+                .addGap(18, 18, 18)
+                .addGroup(analysisPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startUserAnalyseButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -192,7 +202,7 @@ public class MainFrame extends javax.swing.JFrame{
                     .addComponent(userCountLable, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dataCountLable, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(analysisPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         MainPanelLayout.setVerticalGroup(
             MainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -214,7 +224,7 @@ public class MainFrame extends javax.swing.JFrame{
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(userCountLable, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(analysisPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         Menu_Menu.setText("Menu");
@@ -302,7 +312,7 @@ public class MainFrame extends javax.swing.JFrame{
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 435, Short.MAX_VALUE)
+            .addGap(0, 482, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
@@ -383,9 +393,31 @@ public class MainFrame extends javax.swing.JFrame{
 
     private void Menu_DisconnectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Menu_DisconnectMouseClicked
         if(persistence.disconnect()) switchPanelComponents();
+        dataCountLable.setText("???");
+        timeRangeLable.setText("??? - ???");
+        wordCountLable.setText("???");
+        userCountLable.setText("???");
+        analysisPanel.setVisible(false);
     }//GEN-LAST:event_Menu_DisconnectMouseClicked
 
+    private void showPieChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPieChartActionPerformed
+        persistence.showPieChart();
+    }//GEN-LAST:event_showPieChartActionPerformed
     
+    private String getNumberFormat(Number n){
+        String num = n.toString();
+        String result = "";
+        for(int i = num.length()-1; i >= 0; i--){
+            int factor = (num.length()-1)-i;
+            int modFactor = 3;
+            
+            if(factor%modFactor == 0 && i < (num.length()-1)){
+                result = "."+result;
+            }
+            result = num.charAt(i)+result;
+        }
+        return result;
+    }
     
     public void initMainPanel(){
         Number dataCount = persistence.getDataCount();
@@ -393,11 +425,11 @@ public class MainFrame extends javax.swing.JFrame{
         Number wordCount = persistence.getWordCount();
         Number userCount = persistence.getUserCount();
         
-        dataCountLable.setText(dataCount.toString());
+        dataCountLable.setText(getNumberFormat(dataCount));
         timeRangeLable.setText(timeRange);
-        wordCountLable.setText(wordCount.toString());
-        userCountLable.setText(userCount.toString());
-        
+        wordCountLable.setText(getNumberFormat(wordCount));
+        userCountLable.setText(getNumberFormat(userCount));
+        analysisPanel.setVisible(true);
         List<String> usernames = persistence.getUsernames();
         usernameComboBox.removeAllItems();
         for(String user : usernames) usernameComboBox.addItem(user);
@@ -461,6 +493,7 @@ public class MainFrame extends javax.swing.JFrame{
     private javax.swing.JMenu Menu_Edit;
     private javax.swing.JMenu Menu_Help;
     private javax.swing.JMenu Menu_Menu;
+    private javax.swing.JPanel analysisPanel;
     private javax.swing.JButton connectButton;
     private javax.swing.JPanel connectPanel;
     private javax.swing.JLabel dataCountLable;
@@ -469,9 +502,9 @@ public class MainFrame extends javax.swing.JFrame{
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JButton showListTopUserButton;
     private javax.swing.JButton showListTopWordsButton;
+    private javax.swing.JButton showPieChart;
     private javax.swing.JButton showTimeDiagramButton;
     private javax.swing.JButton startUserAnalyseButton;
     private javax.swing.JLabel timeRangeLable;

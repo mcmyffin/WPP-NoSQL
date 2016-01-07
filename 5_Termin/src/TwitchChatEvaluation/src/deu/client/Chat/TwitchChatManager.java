@@ -1,28 +1,20 @@
-package de.client.Chat;
+package deu.client.Chat;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import de.client.UI.Dialog.LoadingDialog;
-import de.client.UI.Dialog.LogDialog;
+
+import deu.client.UI.Dialog.LoadingDialog;
 import de.server.persistence.ServerPersistence;
+import de.server.persistence.result.HourActivity;
+import de.server.persistence.result.HourActivityImpl;
 import de.server.persistence.result.MessageData;
-import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.time.Hour;
-import org.jfree.data.time.RegularTimePeriod;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
+
+import deu.client.UI.Dialog.LogDialog;
+import java.util.HashMap;
 
 /**
  *
@@ -35,6 +27,7 @@ public class TwitchChatManager implements Runnable, IChatManager{
     private final Map<String,Long>  countWordMap;
     private final Map<String,Long>  countUserMessageMap;
     private final Map<Integer,Long> countMessagePerHourMap;
+    private Map<String,HourActivity> userActivities;
     private long wordCount;
     
     private Queue<String> countWordQueue;
@@ -42,7 +35,7 @@ public class TwitchChatManager implements Runnable, IChatManager{
     
     private final ServerPersistence serverPersistence;
     private final List<TwitchChat>  chats;
-    private List<MessageData>       serverList;
+    private static List<MessageData> serverList = new ArrayList();
     
     public TwitchChatManager(ServerPersistence serverPersistence, int maxElemPerThread){
         checkNotNull(serverPersistence);
@@ -51,9 +44,10 @@ public class TwitchChatManager implements Runnable, IChatManager{
         
         maxListElemPerThread = maxElemPerThread;
         chats                = new ArrayList();
-        countWordMap         = new LinkedHashMap();
-        countUserMessageMap  = new LinkedHashMap();
-        countMessagePerHourMap = new LinkedHashMap();
+        countWordMap         = new HashMap();
+        countUserMessageMap  = new HashMap();
+        countMessagePerHourMap = new HashMap();
+        userActivities       = new HashMap();
     }
     private void initMaps(){
         countMessagePerHourMap.clear();
@@ -64,9 +58,10 @@ public class TwitchChatManager implements Runnable, IChatManager{
             countMessagePerHourMap.put(i, 0L);
         }
     }
-    private void initClass(){
+    private void initThreads(){
+        long dataCount = serverPersistence.getMessageCount();
         
-        if(serverList == null){
+        if(serverList.size() < dataCount){
             LogDialog.addLogLine(">> [GET SERVER DATA]");
             List<MessageData> list = serverPersistence.getAllMessages();
             LogDialog.addLogLine("<< "+list.size());
@@ -122,6 +117,24 @@ public class TwitchChatManager implements Runnable, IChatManager{
         }
     }
     
+    synchronized void addUserActivity(String username, int hour){
+        if(userActivities.containsKey(username)){
+            HourActivity ha = userActivities.get(username);
+            try {
+                ha.addActivity(hour);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else{
+            HourActivity ha = new HourActivityImpl();
+            try {
+                ha.addActivity(hour);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            userActivities.put(username, ha);
+        }
+    }
     
     private void getSortData(){
         LogDialog.addLogLine(">> START SORT DATA");
@@ -134,89 +147,14 @@ public class TwitchChatManager implements Runnable, IChatManager{
         countUserMessageQueue.addAll(countUserMessageMap.keySet());
         LogDialog.addLogLine("<< SORT DATA DONE");
     }
-    
-    private void showCountWord(Queue<String> queue){
-        int words = queue.size();
-        if(queue.size() < words) words = queue.size();
-        
-        System.out.println("=== Most most common "+words+" Words of "+wordCount+"===");
-        for(String word : queue){
-            
-            long   count= countWordMap.get(word);
-            String line = "#"+countWordMap.get(word)+" : word = '"+word+"'";
-            
-            System.out.println(line);
-        }
-        System.out.println("===###===");
-    }
-    
-    private void showCountUserMessage(Queue<String> queue){
-        
-        int users = 10;
-        if(queue.size() < users) users = queue.size();
-        
-        System.out.println("=== Users who have sent the most common messages ("+queue.size()+" = Users)");
-        for(int i = 1; i <= users; i++){
-        
-            String user = queue.poll();
-            long   count= countUserMessageMap.get(user);
-            String line = "#"+i+" : username = '"+user+"', count = '"+count+"'";
-            
-            System.out.println(line);
-        }
-        System.out.println("===###===");
-    }
-
-    
-    private void test(){
-        
-        String titel = "Common Message Per Hour";
-        String xAxisTitel = "Hour";
-        String yAxisTitel = "Message Count";
-        
-        
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(titel, xAxisTitel, yAxisTitel, createDataSet());
-        ChartFrame frame = new ChartFrame("Chart", chart);
-        frame.setBounds(new Rectangle(1200, 800));
-        frame.setVisible(true);
-    }
-    
-    private void showCountMessagePerHour(Queue<String> queue){
-        int hours = 20;
-        if(queue.size() < hours) hours = queue.size();
-        
-        System.out.println("=== First "+hours+" Hours with most common messages");
-        for(int i = 1; i <= hours; i++){
-            
-            String time   = queue.poll();
-            long   count  = countMessagePerHourMap.get(time);
-            String line   = "#"+i+" : '"+time+"', count = '"+count+"'";
-            
-            System.out.println(line);
-        }
-        System.out.println("===###===");
-    }
-
-    private XYDataset createDataSet(){
-        TimeSeries series = new TimeSeries("MessageCountPerHour");
-        
-        int year  = Calendar.getInstance().get(Calendar.YEAR);;
-        int month = Calendar.getInstance().get(Calendar.MONTH)+1;
-        int day   = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-        
-        for(int hour : countMessagePerHourMap.keySet()){
-            RegularTimePeriod tp = new Hour(hour,day,month,year);
-            series.add(tp, countMessagePerHourMap.get(hour));
-        }
-                
-        return new TimeSeriesCollection(series);
-    }
+   
     
     @Override
     public void run() {
         long start = System.currentTimeMillis();
         initMaps();
-        initClass();
+        LoadingDialog.setStatus("GET SERVER DATA");
+        initThreads();
         LoadingDialog.setStatus("ANALYSING DATA");
         while(!thread.isInterrupted() && !chats.isEmpty()){
             
@@ -300,8 +238,21 @@ public class TwitchChatManager implements Runnable, IChatManager{
     public Map<String, Long> getCoutWordsMap() {
         return countWordMap;
     }
-    
-    
+
+    @Override
+    public Queue<String> getCountUserMessageQueue() {
+        return countUserMessageQueue;
+    }
+
+    @Override
+    public Map<String, Long> getCountUserMessageMap() {
+        return countUserMessageMap;
+    }
+
+    @Override
+    public Map<String,HourActivity> getUserActivities() {
+        return userActivities;
+    }
     
     
 }

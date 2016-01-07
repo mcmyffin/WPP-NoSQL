@@ -1,5 +1,6 @@
-package de.client.UI.Dialog;
+package deu.client.UI.Dialog;
 
+import java.awt.EventQueue;
 import javax.swing.JFrame;
 
 /**
@@ -7,27 +8,28 @@ import javax.swing.JFrame;
  * @author dima
  */
 public class LoadingDialog extends javax.swing.JDialog {
-
-    private static LoadingDialog instance = null;
+    
+    private static LoadingDialog instance;
     
     private LoadingDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setNewStatus("PLEASE WAIT");
     }
 
     public static LoadingDialog getInstance(JFrame f){
-        if(instance == null) instance = new LoadingDialog(f, true);
+        instance = new LoadingDialog(f, true);
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                instance.setVisible(true);
+            }
+        });
         return instance;
     }
-    
-    public void showLoadingView(String status){
-        instance.statusTextField.setText(status);
-        instance.setVisible(true);
-    }
-    
-    
     
     public void closeLoadingView(){
         if(instance != null){
@@ -35,7 +37,13 @@ public class LoadingDialog extends javax.swing.JDialog {
         }
     }
     
-    public static void setStatus(String status){
+    public synchronized void setNewStatus(String status){
+        statusTextField.setText(status);
+        statusTextField.repaint();
+        repaint();
+    }
+    
+    public synchronized static void setStatus(String status){
         if(instance != null){
             instance.statusTextField.setText(status);
         }
@@ -60,7 +68,7 @@ public class LoadingDialog extends javax.swing.JDialog {
         jPanel1.setBackground(new java.awt.Color(254, 254, 254));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/client/UI/Dialog/loader.GIF"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/deu/client/UI/Dialog/loader.GIF"))); // NOI18N
 
         statusTextField.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statusTextField.setBorder(javax.swing.BorderFactory.createEtchedBorder());

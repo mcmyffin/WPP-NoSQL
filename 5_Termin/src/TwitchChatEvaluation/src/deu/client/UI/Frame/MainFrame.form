@@ -129,7 +129,7 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="435" max="32767" attributes="0"/>
+          <EmptySpace min="0" pref="482" max="32767" attributes="0"/>
           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -213,7 +213,7 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="jPanel2" alignment="0" min="-2" max="-2" attributes="0"/>
+              <Component id="analysisPanel" alignment="0" min="-2" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -240,7 +240,7 @@
                       <Component id="userCountLable" min="-2" pref="30" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="jPanel2" max="-2" attributes="0"/>
+                  <Component id="analysisPanel" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -310,7 +310,7 @@
             </Property>
           </Properties>
         </Component>
-        <Container class="javax.swing.JPanel" name="jPanel2">
+        <Container class="javax.swing.JPanel" name="analysisPanel">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="e9" green="e9" red="eb" type="rgb"/>
@@ -340,6 +340,7 @@
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="startUserAnalyseButton" pref="196" max="32767" attributes="0"/>
                           </Group>
+                          <Component id="showPieChart" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -354,6 +355,8 @@
                       <Component id="showListTopWordsButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="showListTopUserButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="showPieChart" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="usernameComboBox" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
@@ -375,7 +378,7 @@
             </Component>
             <Component class="javax.swing.JButton" name="showListTopWordsButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Liste - Top 100 W&#xf6;rter"/>
+                <Property name="text" type="java.lang.String" value="Tabelle - Top W&#xf6;rter"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showListTopWordsButtonActionPerformed"/>
@@ -383,7 +386,7 @@
             </Component>
             <Component class="javax.swing.JButton" name="showListTopUserButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Liste - Top 100 User"/>
+                <Property name="text" type="java.lang.String" value="Tabelle - Top User"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showListTopUserButtonActionPerformed"/>
@@ -407,6 +410,14 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startUserAnalyseButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="showPieChart">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Torten Diagramm - User-Typ"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showPieChartActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

@@ -1,10 +1,10 @@
-package de.client.Chat;
+package deu.client.Chat;
 
+import de.server.persistence.result.HourActivity;
 import de.server.persistence.result.MessageData;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 /**
  *
@@ -34,5 +34,10 @@ public interface IChatManager {
 
     public Map<String, Long> getCoutWordsMap();
 
+    public Queue<String> getCountUserMessageQueue();
+
+    public Map<String, Long> getCountUserMessageMap();
+
+    public Map<String,HourActivity> getUserActivities();
     
 }

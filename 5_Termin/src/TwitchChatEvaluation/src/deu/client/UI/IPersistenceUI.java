@@ -1,8 +1,8 @@
-package de.client.UI;
+package deu.client.UI;
 
-import java.net.ConnectException;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import javax.swing.JDialog;
 
 /**
  *
@@ -54,6 +54,10 @@ public interface IPersistenceUI {
     public List<String> getUsernames();
 
     public void showAnalyseDialog();
+    
+    public void showUserMessagePerHourDiagramm(String username, JDialog focus);
+
+    public void showPieChart();
     
     
 }

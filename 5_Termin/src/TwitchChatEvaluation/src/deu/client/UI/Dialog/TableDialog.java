@@ -1,10 +1,8 @@
-package de.client.UI.Dialog;
+package deu.client.UI.Dialog;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import javax.swing.JTable;
+import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -17,24 +15,46 @@ public class TableDialog extends javax.swing.JDialog {
     public TableDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setLocationRelativeTo(parent);
+    }
+    
+    public TableDialog(JDialog parent, boolean modal){
+        super(parent, modal);
+        initComponents();
+        setLocationRelativeTo(parent);
     }
 
-    public void showTable(Queue<String> q,Map map, String column1, String column2){
+    public void showTable(Queue q,Map map, String column1, String column2){
         String[] columnNames = {column1,column2};
         DefaultTableModel model = new DefaultTableModel(columnNames,0);
-        String key = q.poll();
+        Object key = q.poll();
         int i = 0;
         while(key != null){
-            Object[] line = {key,map.get(key)};
+            
+            Object val = map.get(key);
+            Object[] line = {key,((val instanceof Number)? getNumberFormat((Long) val): val.toString() )};
             model.addRow(line);
             key = q.poll();
         }
-        
         
         table.setModel(model);
         this.setVisible(true);
     }
     
+    private String getNumberFormat(Number n){
+        String num = n.toString();
+        String result = "";
+        for(int i = num.length()-1; i >= 0; i--){
+            int factor = (num.length()-1)-i;
+            int modFactor = 3;
+            
+            if(factor%modFactor == 0 && i < (num.length()-1)){
+                result = "."+result;
+            }
+            result = num.charAt(i)+result;
+        }
+        return result;
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -86,45 +106,6 @@ public class TableDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TableDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TableDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TableDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TableDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                TableDialog dialog = new TableDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;

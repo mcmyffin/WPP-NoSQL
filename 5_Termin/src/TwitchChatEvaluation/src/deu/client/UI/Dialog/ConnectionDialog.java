@@ -1,4 +1,4 @@
-package de.client.UI.Dialog;
+package deu.client.UI.Dialog;
 
 import javax.swing.JOptionPane;
 
@@ -11,7 +11,7 @@ public class ConnectionDialog extends javax.swing.JDialog {
     private String serverAdress = "127.0.0.1";
     private String database = "test";
     private final int minElemPerThread = 10000;
-    private int elemPerThread = minElemPerThread;
+    private int elemPerThread = 600000;
     
     public ConnectionDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -19,7 +19,7 @@ public class ConnectionDialog extends javax.swing.JDialog {
         this.setLocationRelativeTo(null);
         serverAdrTextField.setText(serverAdress);
         dbTextField.setText(database);
-        maxElemPerThreadSpinner.setValue(minElemPerThread);
+        maxElemPerThreadSpinner.setValue(elemPerThread);
         
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -134,7 +134,7 @@ public class ConnectionDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                         .addComponent(maxElemPerThreadSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cancelButtton)
                     .addComponent(saveButton))
                 .addContainerGap())

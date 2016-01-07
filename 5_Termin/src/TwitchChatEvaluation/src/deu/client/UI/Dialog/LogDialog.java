@@ -1,4 +1,4 @@
-package de.client.UI.Dialog;
+package deu.client.UI.Dialog;
 
 
 import java.text.SimpleDateFormat;

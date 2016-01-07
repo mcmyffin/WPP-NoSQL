@@ -1,6 +1,4 @@
-package de.client.Chat;
-
-import java.util.Map;
+package deu.client.Chat;
 
 /**
  *
@@ -10,7 +8,6 @@ public interface IEval {
     
     
     public void calcEvaluation();
-    
     public boolean isRunning();
     public Thread getThread();
     public long getWordCount();

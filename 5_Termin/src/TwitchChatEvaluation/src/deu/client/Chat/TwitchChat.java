@@ -1,4 +1,4 @@
-package de.client.Chat;
+package deu.client.Chat;
 
 import de.server.persistence.result.MessageData;
 import java.util.Calendar;
@@ -75,12 +75,15 @@ public class TwitchChat implements IEval, Runnable{
     }
     
     private void  calcTimeWithMostMessages(MessageData data){
+        String username = data.getUser();
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(data.getTimeStamp());
         
         int hour = cal.get(Calendar.HOUR_OF_DAY);
+        manager.addUserActivity(username, hour);
         manager.addMessagePerHourCount(hour);
     }
+    
     
     
     
@@ -132,6 +135,10 @@ public class TwitchChat implements IEval, Runnable{
     @Override
     public long getWordCount() {
         return wordCount;
+    }
+    
+    public static ValueStringComparator getValueStringComperator(Map<String,Long> map){
+        return new ValueStringComparator(map);
     }
 }
 
